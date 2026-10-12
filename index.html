@@ -1,1198 +1,1793 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мастер Корней — Игра-тренажёр</title>
-    <style>
-        :root {
-            --primary: #5b4bff;
-            --primary-dark: #4338ca;
-            --primary-soft: #eef2ff;
-            --accent: #f59e0b;
-            --accent-soft: #fef3c7;
-            --secondary: #ec4899;
-            --success: #10b981;
-            --success-soft: #d1fae5;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --danger-soft: #fee2e2;
-            --bg: #f8fafc;
-            --bg-card: #ffffff;
-            --text-dark: #0f172a;
-            --text-mid: #334155;
-            --text-light: #64748b;
-            --border: #e2e8f0;
-            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-            --shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-            --shadow-lg: 0 20px 40px -12px rgba(91, 75, 255, 0.25);
-            --radius: 18px;
-            --radius-sm: 12px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* Harmonious font stacks — no external fonts */
-        html {
-            font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
-            font-feature-settings: 'kern' 1, 'liga' 1;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            background:
-                radial-gradient(1200px 600px at 10% -10%, #e0e7ff 0%, transparent 60%),
-                radial-gradient(1000px 500px at 110% 10%, #fce7f3 0%, transparent 55%),
-                linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            color: var(--text-dark);
-        }
-
-        #app {
-            width: 100%;
-            max-width: 820px;
-            background: var(--bg-card);
-            border-radius: 28px;
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-            min-height: 620px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-
-        /* Header */
-        .game-header {
-            background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 55%, var(--secondary) 100%);
-            color: white;
-            padding: 22px 24px 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .game-header::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(400px 200px at 80% 0%, rgba(255,255,255,0.18), transparent 60%),
-                radial-gradient(300px 180px at 0% 100%, rgba(255,255,255,0.12), transparent 60%);
-            pointer-events: none;
-        }
-
-        .game-header h1 {
-            font-size: 1.65rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.15);
-            position: relative;
-        }
-
-        .game-header .subtitle {
-            font-size: 0.92rem;
-            opacity: 0.92;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .progress-container {
-            background: rgba(255,255,255,0.22);
-            height: 8px;
-            border-radius: 999px;
-            margin-top: 16px;
-            overflow: hidden;
-            position: relative;
-            backdrop-filter: blur(4px);
-        }
-
-        .progress-bar {
-            background: linear-gradient(90deg, #fde68a, #fbbf24);
-            height: 100%;
-            transition: width 0.6s cubic-bezier(.2,.9,.3,1);
-            border-radius: 999px;
-            box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 12px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            position: relative;
-            letter-spacing: 0.01em;
-        }
-
-        .stats-bar .stat-pill {
-            background: rgba(255,255,255,0.18);
-            padding: 6px 12px;
-            border-radius: 999px;
-            backdrop-filter: blur(4px);
-        }
-
-        /* Main Content */
-        .game-content {
-            flex: 1;
-            padding: 28px 22px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Start Screen */
-        .start-screen {
-            text-align: center;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .logo-mark {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 84px;
-            height: 84px;
-            border-radius: 24px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            font-size: 2.4rem;
-            font-weight: 800;
-            margin-bottom: 14px;
-            box-shadow: 0 12px 30px -8px rgba(91, 75, 255, 0.5);
-            font-family: 'Georgia', 'Cambria', serif;
-            letter-spacing: -0.04em;
-        }
-
-        .start-screen h2 {
-            font-size: 1.7rem;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-            letter-spacing: -0.02em;
-            font-weight: 800;
-        }
-
-        .start-screen .lead {
-            color: var(--text-light);
-            margin-bottom: 22px;
-            line-height: 1.55;
-            font-size: 1rem;
-            max-width: 520px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .mission-list {
-            background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
-            border-radius: var(--radius);
-            padding: 22px;
-            margin: 18px auto;
-            box-shadow: var(--shadow);
-            text-align: left;
-            border: 1px solid var(--border);
-            max-width: 560px;
-        }
-
-        .mission-list h3 {
-            color: var(--primary);
-            margin-bottom: 12px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-
-        .mission-list ul {
-            list-style: none;
-            color: var(--text-mid);
-            display: grid;
-            gap: 8px;
-        }
-
-        .mission-list li {
-            padding: 8px 10px 8px 34px;
-            position: relative;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            transition: background 0.2s;
-        }
-
-        .mission-list li:hover {
-            background: var(--primary-soft);
-        }
-
-        .mission-list li::before {
-            content: "✓";
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--success-soft);
-            color: var(--success);
-            font-weight: 800;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 18px auto;
-            max-width: 560px;
-        }
-
-        .info-card {
-            background: var(--bg);
-            padding: 14px 10px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
-
-        .info-card .info-icon {
-            font-size: 1.4rem;
-            margin-bottom: 4px;
-        }
-
-        .info-card .info-label {
-            font-size: 0.78rem;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
-        .info-card .info-value {
-            font-size: 0.95rem;
-            color: var(--text-dark);
-            font-weight: 700;
-            margin-top: 2px;
-        }
-
-        /* Question Card */
-        .question-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 26px 22px;
-            box-shadow: var(--shadow);
-            animation: slideIn 0.4s cubic-bezier(.2,.9,.3,1);
-            border: 1px solid var(--border);
-        }
-
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 14px;
-            border-bottom: 1px dashed var(--border);
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .level-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--primary-soft);
-            color: var(--primary);
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-        }
-
-        .points-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--accent-soft);
-            color: #92400e;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            font-weight: 700;
-        }
-
-        .timer {
-            background: linear-gradient(135deg, var(--warning), #f97316);
-            color: white;
-            padding: 8px 14px;
-            border-radius: 999px;
-            font-weight: 700;
-            font-size: 0.92rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .timer.low {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-            animation: pulse 1s ease infinite;
-        }
-
-        .question-text {
-            font-size: 1.15rem;
-            color: var(--text-mid);
-            margin-bottom: 18px;
-            text-align: center;
-            font-weight: 500;
-            letter-spacing: -0.01em;
-        }
-
-        /* Math expression — styled like a chalkboard card */
-        .math-expression {
-            background:
-                radial-gradient(ellipse at top, rgba(255,255,255,0.5), transparent 70%),
-                linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: #fef3c7;
-            padding: 26px 20px;
-            border-radius: var(--radius);
-            margin: 14px 0 22px;
-            font-size: 1.9rem;
-            text-align: center;
-            font-weight: 700;
-            font-family: 'Georgia', 'Cambria', 'Times New Roman', serif;
-            letter-spacing: 0.01em;
-            border: 1px solid rgba(251, 191, 36, 0.25);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.08),
-                0 10px 24px -8px rgba(15, 23, 42, 0.4);
-            text-shadow: 0 2px 8px rgba(251, 191, 36, 0.25);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .math-expression::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                repeating-linear-gradient(0deg, transparent 0, transparent 28px, rgba(255,255,255,0.02) 28px, rgba(255,255,255,0.02) 29px);
-            pointer-events: none;
-        }
-
-        .math-expression .sqrt-symbol {
-            color: #fbbf24;
-        }
-
-        /* Answer Options */
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 8px;
-        }
-
-        .option-btn {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 16px 14px;
-            font-size: 1.15rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(.2,.9,.3,1);
-            color: var(--text-dark);
-            min-height: 52px;
-            font-family: 'Georgia', 'Cambria', serif;
-            letter-spacing: 0.01em;
-            position: relative;
-        }
-
-        .option-btn:hover:not(:disabled) {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px -6px rgba(91, 75, 255, 0.35);
-            background: var(--primary-soft);
-        }
-
-        .option-btn:focus-visible {
-            outline: 3px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        .option-btn.selected {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 6px 16px -4px rgba(91, 75, 255, 0.5);
-        }
-
-        .option-btn.correct {
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: white;
-            border-color: var(--success);
-            animation: popCorrect 0.5s cubic-bezier(.2,.9,.3,1.3);
-            box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.5);
-        }
-
-        .option-btn.incorrect {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
-            color: white;
-            border-color: var(--danger);
-            animation: shake 0.45s ease;
-            box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.45);
-        }
-
-        .option-btn:disabled {
-            cursor: default;
-        }
-
-        /* Feedback */
-        .feedback {
-            margin-top: 20px;
-            padding: 14px 16px;
-            border-radius: var(--radius-sm);
-            text-align: center;
-            font-weight: 600;
-            animation: fadeIn 0.3s ease;
-            font-size: 0.98rem;
-        }
-
-        .feedback.correct {
-            background: var(--success-soft);
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .feedback.incorrect {
-            background: var(--danger-soft);
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        /* Buttons */
-        .btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
-            border-radius: var(--radius-sm);
-            padding: 15px 28px;
-            font-size: 1.02rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(.2,.9,.3,1);
-            min-height: 50px;
-            box-shadow: 0 8px 20px -6px rgba(91, 75, 255, 0.5);
-            letter-spacing: -0.01em;
-            font-family: inherit;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 28px -8px rgba(91, 75, 255, 0.55);
-        }
-
-        .btn:focus-visible {
-            outline: 3px solid var(--primary);
-            outline-offset: 3px;
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), #059669);
-            box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.5);
-        }
-
-        .btn-success:hover {
-            box-shadow: 0 14px 28px -8px rgba(16, 185, 129, 0.55);
-        }
-
-        .btn-center {
-            display: block;
-            margin: 22px auto 0;
-        }
-
-        /* Final Screen */
-        .final-screen {
-            text-align: center;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .final-screen h2 {
-            font-size: 1.9rem;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
-            font-weight: 800;
-        }
-
-        .final-screen .final-message {
-            color: var(--text-light);
-            margin-bottom: 22px;
-            font-size: 1rem;
-        }
-
-        .score-display {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 28px 20px;
-            border-radius: var(--radius);
-            margin: 18px 0;
-            box-shadow: 0 20px 40px -12px rgba(91, 75, 255, 0.45);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .score-display::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(400px 200px at 80% 0%, rgba(255,255,255,0.2), transparent 60%);
-            pointer-events: none;
-        }
-
-        .score-display .score-label {
-            font-size: 0.92rem;
-            opacity: 0.92;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .score-display .score-number {
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin: 6px 0;
-            letter-spacing: -0.03em;
-            font-family: 'Georgia', serif;
-            position: relative;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.15);
-        }
-
-        .score-display .score-percent {
-            font-size: 1.05rem;
-            font-weight: 700;
-            position: relative;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 18px 0;
-        }
-
-        .stat-card {
-            background: var(--bg);
-            padding: 18px 10px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
-
-        .stat-card .stat-value {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.02em;
-            font-family: 'Georgia', serif;
-        }
-
-        .stat-card .stat-label {
-            font-size: 0.78rem;
-            color: var(--text-light);
-            margin-top: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
-        .medal {
-            font-size: 4rem;
-            margin: 10px 0 4px;
-            animation: bounce 1.4s ease infinite;
-            display: inline-block;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.06); }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-8px); }
-            40% { transform: translateX(8px); }
-            60% { transform: translateX(-6px); }
-            80% { transform: translateX(6px); }
-        }
-
-        @keyframes popCorrect {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0) rotate(-4deg); }
-            50% { transform: translateY(-10px) rotate(4deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 520px) {
-            body { padding: 8px; }
-            #app { border-radius: 22px; min-height: auto; }
-            .game-header { padding: 18px 18px 16px; }
-            .game-header h1 { font-size: 1.35rem; }
-            .game-content { padding: 20px 16px; }
-            .question-text { font-size: 1.02rem; }
-            .math-expression { font-size: 1.45rem; padding: 22px 14px; }
-            .options-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .option-btn { padding: 14px 10px; font-size: 1.02rem; }
-            .info-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-            .stat-card .stat-value { font-size: 1.3rem; }
-            .score-display .score-number { font-size: 2.2rem; }
-            .start-screen h2 { font-size: 1.4rem; }
-        }
-
-        @media (max-width: 360px) {
-            .options-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мастер Корней — Игра-тренажёр</title>
+<style>
+:root {
+    --font-heading: 'FuturaDemiC', 'Futura PT Demi', 'Montserrat', system-ui, sans-serif;
+    --font-body: 'FuturaBookC', 'Futura PT Book', 'Segoe UI', system-ui, sans-serif;
+    --primary: #5b4bff;
+    --primary-dark: #4338ca;
+    --primary-soft: #eef2ff;
+    --accent: #f59e0b;
+    --accent-soft: #fef3c7;
+    --secondary: #ec4899;
+    --success: #10b981;
+    --success-soft: #d1fae5;
+    --danger: #ef4444;
+    --danger-soft: #fee2e2;
+    --bg: #f8fafc;
+    --bg-card: #ffffff;
+    --text-dark: #0f172a;
+    --text-mid: #334155;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 20px 40px -12px rgba(91, 75, 255, 0.25);
+    --radius: 18px;
+    --radius-sm: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    background:
+        radial-gradient(1200px 600px at 10% -10%, #e0e7ff 0%, transparent 60%),
+        radial-gradient(1000px 500px at 110% 10%, #fce7f3 0%, transparent 55%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    color: var(--text-dark);
+}
+
+#app {
+    width: 100%;
+    max-width: 880px;
+    background: var(--bg-card);
+    border-radius: 28px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    min-height: 620px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.game-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 55%, var(--secondary) 100%);
+    color: white;
+    padding: 22px 24px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(400px 200px at 80% 0%, rgba(255,255,255,0.18), transparent 60%),
+        radial-gradient(300px 180px at 0% 100%, rgba(255,255,255,0.12), transparent 60%);
+    pointer-events: none;
+}
+
+.game-header h1 {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+.game-header .subtitle {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    opacity: 0.92;
+    font-weight: 400;
+    position: relative;
+}
+
+.progress-container {
+    background: rgba(255,255,255,0.22);
+    height: 8px;
+    border-radius: 999px;
+    margin-top: 16px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #fde68a, #fbbf24);
+    height: 100%;
+    transition: width 0.6s cubic-bezier(.2,.9,.3,1);
+    border-radius: 999px;
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+}
+
+.stats-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    position: relative;
+    font-family: var(--font-body);
+}
+
+.stats-bar .stat-pill {
+    background: rgba(255,255,255,0.18);
+    padding: 6px 12px;
+    border-radius: 999px;
+    backdrop-filter: blur(4px);
+}
+
+.game-content {
+    flex: 1;
+    padding: 28px 22px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.start-screen { text-align: center; animation: fadeIn 0.5s ease; }
+
+.logo-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    box-shadow: 0 12px 30px -8px rgba(91, 75, 255, 0.5);
+    font-family: var(--font-heading);
+    letter-spacing: -0.04em;
+}
+
+.start-screen h2 {
+    font-family: var(--font-heading);
+    font-size: 1.7rem;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+}
+
+.start-screen .lead {
+    color: var(--text-light);
+    margin-bottom: 22px;
+    line-height: 1.55;
+    font-size: 1rem;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: var(--font-body);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 18px auto;
+    max-width: 560px;
+}
+
+.info-card {
+    background: var(--bg);
+    padding: 14px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+
+.info-card .info-icon { font-size: 1.4rem; margin-bottom: 4px; }
+
+.info-card .info-label {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    font-family: var(--font-heading);
+}
+
+.info-card .info-value {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-top: 2px;
+    font-family: var(--font-heading);
+}
+
+.mission-list {
+    background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin: 18px auto;
+    box-shadow: var(--shadow);
+    text-align: left;
+    border: 1px solid var(--border);
+    max-width: 560px;
+}
+
+.mission-list h3 {
+    font-family: var(--font-heading);
+    color: var(--primary);
+    margin-bottom: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.mission-list ul { list-style: none; color: var(--text-mid); display: grid; gap: 8px; }
+
+.mission-list li {
+    padding: 8px 10px 8px 34px;
+    position: relative;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    transition: background 0.2s;
+}
+
+.mission-list li:hover { background: var(--primary-soft); }
+
+.mission-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--success-soft);
+    color: var(--success);
+    font-weight: 800;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.level-intro {
+    background: linear-gradient(135deg, var(--primary-soft), #faf5ff);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 20px;
+    border: 1px solid #c7d2fe;
+}
+
+.level-intro h2 {
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.level-intro .level-subtitle {
+    font-family: var(--font-body);
+    color: var(--text-mid);
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+}
+
+.example-card {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    border: 1px solid var(--border);
+    margin-top: 10px;
+}
+
+.example-card .example-label {
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary);
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.example-expr {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #fef3c7;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    text-align: center;
+    margin: 8px 0;
+    letter-spacing: 0.01em;
+}
+
+.example-expr .sqrt-sym { color: #fbbf24; }
+
+.example-steps {
+    font-family: var(--font-body);
+    color: var(--text-mid);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary);
+}
+
+.example-steps .step {
+    margin: 4px 0;
+    padding-left: 8px;
+}
+
+.example-steps .step-num {
+    color: var(--primary);
+    font-weight: 700;
+    font-family: var(--font-heading);
+    margin-right: 6px;
+}
+
+.squares-table-classical {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    margin-top: 16px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+}
+
+.squares-table-classical .table-label {
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.squares-table-classical table {
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-family: var(--font-heading);
+}
+
+.squares-table-classical th,
+.squares-table-classical td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.squares-table-classical th {
+    background: linear-gradient(135deg, var(--primary-soft), #faf5ff);
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+.squares-table-classical th.row-header {
+    background: linear-gradient(135deg, var(--accent-soft), #fef3c7);
+    color: #92400e;
+    font-weight: 700;
+}
+
+.squares-table-classical td {
+    background: white;
+    color: var(--text-dark);
+    transition: background 0.2s;
+}
+
+.squares-table-classical td:hover {
+    background: var(--primary-soft);
+}
+
+.squares-table-classical .corner-cell {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    font-weight: 700;
+}
+
+.squares-table-classical .table-caption-top {
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.squares-table-classical .table-caption-left {
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-light);
+    margin-right: 8px;
+    font-weight: 600;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
+
+.squares-table-classical .table-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.squares-table-classical .table-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.questions-list {
+    display: grid;
+    gap: 12px;
+}
+
+.q-card {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.q-card.solved-correct {
+    border-color: var(--success);
+    background: linear-gradient(180deg, #f0fdf4, white);
+}
+
+.q-card.solved-hint {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, #fffbeb, white);
+}
+
+.q-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.q-number {
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    color: var(--text-light);
+    font-weight: 700;
+}
+
+.q-status {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.q-status.pending { background: var(--bg); color: var(--text-light); }
+.q-status.correct { background: var(--success-soft); color: #065f46; }
+.q-status.hint { background: var(--accent-soft); color: #92400e; }
+
+.q-expr {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #fef3c7;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    text-align: center;
+    margin: 10px 0 14px;
+    letter-spacing: 0.01em;
+}
+
+.q-expr .sqrt-sym { color: #fbbf24; }
+
+.answer-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+.answer-input {
+    width: 70px;
+    padding: 10px 8px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    text-align: center;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    color: var(--text-dark);
+    transition: border-color 0.2s;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.answer-input:disabled {
+    background: var(--bg);
+    color: var(--text-light);
+    cursor: not-allowed;
+}
+
+.answer-input.wrong {
+    border-color: var(--danger);
+    animation: shake 0.4s ease;
+}
+
+.answer-input.right {
+    border-color: var(--success);
+    background: var(--success-soft);
+}
+
+.root-input-wrap {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.root-input-wrap .coeff-input {
+    width: 56px;
+}
+
+.root-symbol {
+    position: relative;
+    display: inline-flex;
+    align-items: flex-end;
+    padding: 0 4px 0 2px;
+    height: 44px;
+}
+
+.root-symbol::before {
+    content: '√';
+    font-size: 2rem;
+    font-family: var(--font-heading);
+    color: var(--text-dark);
+    line-height: 1;
+    position: relative;
+    top: 2px;
+}
+
+.root-symbol::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 18px;
+    right: 0;
+    height: 2px;
+    background: var(--text-dark);
+}
+
+.root-input-wrap .radicand-input {
+    width: 70px;
+    margin-left: 4px;
+}
+
+.attempts-info {
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--text-light);
+    margin: 6px 0;
+    min-height: 18px;
+}
+
+.attempts-info.warn { color: var(--accent); font-weight: 600; }
+.attempts-info.danger { color: var(--danger); font-weight: 700; }
+
+.check-btn {
+    display: block;
+    margin: 10px auto 0;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    cursor: pointer;
+    min-height: 44px;
+    box-shadow: 0 4px 12px -2px rgba(91, 75, 255, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.check-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px -4px rgba(91, 75, 255, 0.5);
+}
+
+.check-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.explanation-box {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fbbf24;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    color: #78350f;
+    line-height: 1.5;
+    animation: fadeIn 0.4s ease;
+}
+
+.explanation-box .expl-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #92400e;
+}
+
+.next-level-btn {
+    display: block;
+    margin: 24px auto 0;
+    background: linear-gradient(135deg, var(--success), #059669);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 16px 32px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    cursor: pointer;
+    min-height: 52px;
+    box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.5);
+    transition: transform 0.2s;
+}
+
+.next-level-btn:hover { transform: translateY(-2px); }
+
+.next-level-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.level-progress {
+    text-align: center;
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    color: var(--text-mid);
+    margin: 14px 0 4px;
+    font-weight: 700;
+}
+
+.final-screen { text-align: center; animation: fadeIn 0.5s ease; }
+
+.final-screen h2 {
+    font-family: var(--font-heading);
+    font-size: 1.9rem;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.final-screen .final-message {
+    color: var(--text-light);
+    margin-bottom: 22px;
+    font-size: 1rem;
+    font-family: var(--font-body);
+}
+
+.score-display {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 28px 20px;
+    border-radius: var(--radius);
+    margin: 18px 0;
+    box-shadow: 0 20px 40px -12px rgba(91, 75, 255, 0.45);
+    position: relative;
+    overflow: hidden;
+}
+
+.score-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(400px 200px at 80% 0%, rgba(255,255,255,0.2), transparent 60%);
+    pointer-events: none;
+}
+
+.score-display .score-label {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    opacity: 0.92;
+    position: relative;
+}
+
+.score-display .score-number {
+    font-family: var(--font-heading);
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin: 6px 0;
+    letter-spacing: -0.02em;
+    position: relative;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+.score-display .score-percent {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    position: relative;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 18px 0;
+}
+
+.stat-card {
+    background: var(--bg);
+    padding: 18px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+
+.stat-card .stat-value {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.01em;
+}
+
+.stat-card .stat-label {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    color: var(--text-light);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
+
+.results-by-type {
+    background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin: 18px 0;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.results-by-type h3 {
+    font-family: var(--font-heading);
+    color: var(--primary);
+    margin-bottom: 14px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.type-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+.type-row.boss-row {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: var(--accent);
+}
+
+.type-name {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.type-score {
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-mid);
+}
+
+.type-bar-wrap {
+    width: 80px;
+    height: 8px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.type-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(.2,.9,.3,1);
+}
+
+.type-bar.perfect { background: linear-gradient(90deg, var(--success), #059669); }
+.type-bar.good { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+.type-bar.ok { background: linear-gradient(90deg, var(--accent), #f97316); }
+.type-bar.bad { background: linear-gradient(90deg, var(--danger), #dc2626); }
+
+.medal {
+    font-size: 4rem;
+    margin: 10px 0 4px;
+    animation: bounce 1.4s ease infinite;
+    display: inline-block;
+}
+
+.btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 15px 28px;
+    font-size: 1.02rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    cursor: pointer;
+    min-height: 50px;
+    box-shadow: 0 8px 20px -6px rgba(91, 75, 255, 0.5);
+    transition: transform 0.2s;
+}
+
+.btn:hover { transform: translateY(-2px); }
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success), #059669);
+    box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.5);
+}
+
+.btn-center { display: block; margin: 22px auto 0; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-10px) rotate(4deg); }
+}
+
+@media (max-width: 520px) {
+    body { padding: 8px; }
+    #app { border-radius: 22px; min-height: auto; }
+    .game-header { padding: 18px; }
+    .game-header h1 { font-size: 1.35rem; }
+    .game-content { padding: 20px 16px; }
+    .q-expr { font-size: 1.2rem; padding: 14px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .stat-card .stat-value { font-size: 1.3rem; }
+    .score-display .score-number { font-size: 2.2rem; }
+    .start-screen h2 { font-size: 1.4rem; }
+    .type-row { grid-template-columns: 1fr; gap: 6px; padding: 10px; }
+    .type-bar-wrap { width: 100%; }
+    .answer-input { width: 60px; font-size: 1rem; }
+    .root-input-wrap .coeff-input { width: 48px; }
+    .root-input-wrap .radicand-input { width: 60px; }
+    .squares-table-classical th,
+    .squares-table-classical td { padding: 6px 8px; font-size: 0.78rem; }
+}
+
+@media (max-width: 360px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-    <main id="app" role="main" aria-label="Игра-тренажёр по действиям с корнями"></main>
+<main id="app" role="main" aria-label="Игра-тренажёр по действиям с корнями"></main>
 
-    <script>
-        // ============ CONSTANTS ============
-        // База заданий. Уровень 1 — базовые корни из таблицы квадратов (перемешаны).
-        // Далее — упрощение, сложение/вычитание, умножение, деление, степени, комбо, босс.
-        const QUESTIONS = [
-            // Уровень 1: базовые корни (перемешаны, разные значения таблицы квадратов)
-            { id: 1,  level: 1, type: 'choice', question: 'Вычислите:', expression: '√121', options: ['9', '10', '11', '12'], correct: 2, points: 10 },
-            { id: 2,  level: 1, type: 'choice', question: 'Вычислите:', expression: '√4',   options: ['1', '2', '3', '4'],   correct: 1, points: 10 },
-            { id: 3,  level: 1, type: 'choice', question: 'Вычислите:', expression: '√81',  options: ['7', '8', '9', '10'],  correct: 2, points: 10 },
-            { id: 4,  level: 1, type: 'choice', question: 'Вычислите:', expression: '√16',  options: ['3', '4', '5', '6'],   correct: 1, points: 10 },
-            { id: 5,  level: 1, type: 'choice', question: 'Вычислите:', expression: '√100', options: ['8', '9', '10', '11'], correct: 2, points: 10 },
-            { id: 6,  level: 1, type: 'choice', question: 'Вычислите:', expression: '√9',   options: ['2', '3', '4', '5'],   correct: 1, points: 10 },
-            { id: 7,  level: 1, type: 'choice', question: 'Вычислите:', expression: '√144', options: ['10', '11', '12', '13'], correct: 2, points: 10 },
-            { id: 8,  level: 1, type: 'choice', question: 'Вычислите:', expression: '√64',  options: ['6', '7', '8', '9'],   correct: 2, points: 10 },
+<script>
+// ============ DATA ============
+const LEVELS = [
+    {
+        id: 1,
+        title: 'Базовые корни',
+        subtitle: 'Вспомни таблицу квадратов: √a = b, потому что b² = a',
+        example: {
+            expr: '√49',
+            answer: 7,
+            steps: [
+                'Ищем число, квадрат которого равен 49.',
+                '7 · 7 = 49, значит √49 = 7.'
+            ]
+        },
+        questions: [
+            { id: '1.1', expr: '√25', answerType: 'number', answer: 5, explanation: '5 · 5 = 25, поэтому √25 = 5.' },
+            { id: '1.2', expr: '√64', answerType: 'number', answer: 8, explanation: '8 · 8 = 64, поэтому 64 = 8.' },
+            { id: '1.3', expr: '√100', answerType: 'number', answer: 10, explanation: '10 · 10 = 100, поэтому √100 = 10.' },
+            { id: '1.4', expr: '√121', answerType: 'number', answer: 11, explanation: '11 · 11 = 121, поэтому √121 = 11.' },
+            { id: '1.5', expr: '√144', answerType: 'number', answer: 12, explanation: '12 · 12 = 144, поэтому √144 = 12.' }
+        ]
+    },
+    {
+        id: 2,
+        title: 'Вынесение множителя из-под корня',
+        subtitle: 'Разложи подкоренное число на множители, один из которых — полный квадрат',
+        example: {
+            expr: '√12',
+            answerRoot: { coeff: 2, radicand: 3 },
+            steps: [
+                'Разложим 12 = 4 · 3, где 4 — полный квадрат.',
+                '√12 = (4 · 3) = √4 · √3 = 2√3.'
+            ]
+        },
+        questions: [
+            { id: '2.1', expr: '√18', answerType: 'root', answer: { coeff: 3, radicand: 2 }, explanation: '18 = 9 · 2. √18 = √9 · √2 = 3√2.' },
+            { id: '2.2', expr: '√50', answerType: 'root', answer: { coeff: 5, radicand: 2 }, explanation: '50 = 25 · 2. √50 = 25 · √2 = 5√2.' },
+            { id: '2.3', expr: '√27', answerType: 'root', answer: { coeff: 3, radicand: 3 }, explanation: '27 = 9 · 3. √27 = √9 · √3 = 3√3.' },
+            { id: '2.4', expr: '√48', answerType: 'root', answer: { coeff: 4, radicand: 3 }, explanation: '48 = 16 · 3. √48 = √16 · √3 = 4√3.' }
+        ]
+    },
+    {
+        id: 3,
+        title: 'Сложение и вычитание корней',
+        subtitle: 'Сначала упрости каждый корень, затем сложи/вычти подобные',
+        example: {
+            expr: '√8 + √2',
+            answerRoot: { coeff: 3, radicand: 2 },
+            steps: [
+                'Упрощаем √8 = √(4·2) = 2√2.',
+                'Получаем: 2√2 + √2 = (2+1)√2 = 3√2.'
+            ]
+        },
+        questions: [
+            { id: '3.1', expr: '√27 − √3', answerType: 'root', answer: { coeff: 2, radicand: 3 }, explanation: '√27 = 3√3. Тогда 3√3 − √3 = 2√3.' },
+            { id: '3.2', expr: '√18 + 8', answerType: 'root', answer: { coeff: 5, radicand: 2 }, explanation: '√18 = 3√2, 8 = 2√2. Сумма: 3√2 + 2√2 = 5√2.' },
+            { id: '3.3', expr: '3√5 + 2√5', answerType: 'root', answer: { coeff: 5, radicand: 5 }, explanation: 'Подобные корни: (3+2)√5 = 5√5.' },
+            { id: '3.4', expr: '√50 − √32', answerType: 'root', answer: { coeff: 1, radicand: 2 }, explanation: '√50 = 5√2, √32 = 4√2. Разность: 5√2 − 4√2 = √2.' }
+        ]
+    },
+    {
+        id: 4,
+        title: 'Умножение корней',
+        subtitle: 'Свойство: √a · √b = √(a·b)',
+        example: {
+            expr: '√2 · √8',
+            answer: 4,
+            steps: [
+                '√2 · √8 = (2·8) = √16.',
+                '√16 = 4.'
+            ]
+        },
+        questions: [
+            { id: '4.1', expr: '√3 · √12', answerType: 'number', answer: 6, explanation: '√3 · 12 = √36 = 6.' },
+            { id: '4.2', expr: '√5 · √20', answerType: 'number', answer: 10, explanation: '√5 · √20 = √100 = 10.' },
+            { id: '4.3', expr: '√7 · √7', answerType: 'number', answer: 7, explanation: '√7 · √7 = √49 = 7.' },
+            { id: '4.4', expr: '√6 · √24', answerType: 'number', answer: 12, explanation: '√6 · √24 = √144 = 12.' }
+        ]
+    },
+    {
+        id: 5,
+        title: 'Деление корней',
+        subtitle: 'Свойство: √a / √b = √(a/b)',
+        example: {
+            expr: '√18 / √2',
+            answer: 3,
+            steps: [
+                '√18 / √2 = (18/2) = √9.',
+                '√9 = 3.'
+            ]
+        },
+        questions: [
+            { id: '5.1', expr: '√45 / √5', answerType: 'number', answer: 3, explanation: '√45 / 5 = √9 = 3.' },
+            { id: '5.2', expr: '√72 / √8', answerType: 'number', answer: 3, explanation: '√72 / √8 = √9 = 3.' },
+            { id: '5.3', expr: '√48 / √3', answerType: 'number', answer: 4, explanation: '√48 / √3 = √16 = 4.' },
+            { id: '5.4', expr: '√200 / √2', answerType: 'number', answer: 10, explanation: '√200 / √2 = √100 = 10.' }
+        ]
+    },
+    {
+        id: 6,
+        title: 'Возведение корня в степень',
+        subtitle: '(√a)² = a',
+        example: {
+            expr: '(√5)²',
+            answer: 5,
+            steps: [
+                'Квадрат «съедает» корень.',
+                '(√5)² = 5.'
+            ]
+        },
+        questions: [
+            { id: '6.1', expr: '(√3)²', answerType: 'number', answer: 3, explanation: '(√3)² = 3.' },
+            { id: '6.2', expr: '(√11)²', answerType: 'number', answer: 11, explanation: '(√11)² = 11.' },
+            { id: '6.3', expr: '(2√3)²', answerType: 'number', answer: 12, explanation: '(2√3)² = 2² · (√3)² = 4 · 3 = 12.' }
+        ]
+    },
+    {
+        id: 7,
+        title: 'Комбинированные выражения',
+        subtitle: 'Применяй все свойства вместе',
+        example: {
+            expr: '√12 + √27 − √3',
+            answerRoot: { coeff: 4, radicand: 3 },
+            steps: [
+                '√12 = 2√3, √27 = 3√3.',
+                '2√3 + 3√3 − √3 = (2+3−1)√3 = 4√3.'
+            ]
+        },
+        questions: [
+            { id: '7.1', expr: '√50 − √18 + √8', answerType: 'root', answer: { coeff: 4, radicand: 2 }, explanation: '√50=5√2, √18=3√2, √8=2√2. Итого: 5√2−3√2+2√2 = 4√2.' },
+            { id: '7.2', expr: '√(4·9) + √(25·16)', answerType: 'number', answer: 26, explanation: '√36 + 400 = 6 + 20 = 26.' },
+            { id: '7.3', expr: '2√12 + 27', answerType: 'root', answer: { coeff: 7, radicand: 3 }, explanation: '2√12 = 2·2√3 = 4√3. √27 = 3√3. Сумма: 4√3+3√3 = 7√3.' }
+        ]
+    },
+    {
+        id: 8,
+        title: 'Финальный босс',
+        subtitle: 'Большое выражение — примени всё, что узнал!',
+        isBoss: true,
+        example: {
+            expr: '(√12 + √27)·√3',
+            answer: 15,
+            steps: [
+                '√12 = 2√3, √27 = 3√3.',
+                '(2√3 + 3√3)·√3 = 5√3·√3 = 5·3 = 15.'
+            ]
+        },
+        questions: [
+            { id: '8.1', expr: '(√12 + √27)·√3 − (√75 − √3)·√3', answerType: 'number', answer: 3, explanation: '√12=2√3, √27=3√3, √75=5√3. Первая скобка: 5√3·√3=15. Вторая: 4√3·√3=12. Итого: 15−12=3.' }
+        ]
+    }
+];
 
-            // Уровень 2: вынесение из-под корня
-            { id: 9,  level: 2, type: 'choice', question: 'Упростите:', expression: '√12',  options: ['2√3', '3√2', '4√3', '6√2'], correct: 0, points: 15 },
-            { id: 10, level: 2, type: 'choice', question: 'Упростите:', expression: '√18',  options: ['2√3', '3√2', '4√2', '9√2'], correct: 1, points: 15 },
-            { id: 11, level: 2, type: 'choice', question: 'Упростите:', expression: '√50',  options: ['5√2', '2√5', '10√5', '25√2'], correct: 0, points: 15 },
-            { id: 12, level: 2, type: 'choice', question: 'Упростите:', expression: '√27',  options: ['3√3', '9√3', '3√9', '27'], correct: 0, points: 15 },
-            { id: 13, level: 2, type: 'choice', question: 'Упростите:', expression: '√48',  options: ['4√3', '3√4', '6√2', '8√3'], correct: 0, points: 15 },
+// ============ STATE ============
+const state = {
+    screen: 'start',
+    currentLevel: 0,
+    score: 0,
+    maxScore: 0,
+    attempts: {},
+    solved: {},
+    startTime: null
+};
 
-            // Уровень 3: сложение и вычитание подобных корней
-            { id: 14, level: 3, type: 'choice', question: 'Вычислите:', expression: '√8 + √2', options: ['√10', '3√2', '2√3', '4√2'], correct: 1, points: 20 },
-            { id: 15, level: 3, type: 'choice', question: 'Вычислите:', expression: '√27 − √3', options: ['√24', '2√3', '3√3', '8√3'], correct: 1, points: 20 },
-            { id: 16, level: 3, type: 'choice', question: 'Вычислите:', expression: '√18 + √8', options: ['√26', '5√2', '4√2', '3√6'], correct: 1, points: 20 },
-            { id: 17, level: 3, type: 'choice', question: 'Вычислите:', expression: '√50 − √32', options: ['√18', '√2', '3√2', '2√2'], correct: 2, points: 20 },
-            { id: 18, level: 3, type: 'choice', question: 'Вычислите:', expression: '3√5 + 2√5', options: ['5√5', '5√10', '6√5', '√25'], correct: 0, points: 20 },
+function calcMaxScore() {
+    let total = 0;
+    LEVELS.forEach(lv => {
+        lv.questions.forEach(q => {
+            total += 10;
+        });
+    });
+    return total;
+}
 
-            // Уровень 4: умножение корней
-            { id: 19, level: 4, type: 'choice', question: 'Вычислите:', expression: '√2 · √8', options: ['√10', '4', '√16', '2√2'], correct: 1, points: 25 },
-            { id: 20, level: 4, type: 'choice', question: 'Вычислите:', expression: '√3 · √12', options: ['6', '√15', '3√2', '√36'], correct: 0, points: 25 },
-            { id: 21, level: 4, type: 'choice', question: 'Вычислите:', expression: '√5 · √20', options: ['10', '√25', '5√2', '√100'], correct: 0, points: 25 },
-            { id: 22, level: 4, type: 'choice', question: 'Вычислите:', expression: '√7 · √7', options: ['7', '√14', '49', '√49'], correct: 0, points: 25 },
+// ============ RENDER ============
+function render() {
+    const app = document.getElementById('app');
+    while (app.firstChild) app.removeChild(app.firstChild);
 
-            // Уровень 5: деление корней
-            { id: 23, level: 5, type: 'choice', question: 'Вычислите:', expression: '√18 / √2', options: ['√9', '3', '√16', '9'], correct: 1, points: 25 },
-            { id: 24, level: 5, type: 'choice', question: 'Вычислите:', expression: '√50 / √5', options: ['√10', '10', '√45', '5'], correct: 0, points: 25 },
-            { id: 25, level: 5, type: 'choice', question: 'Вычислите:', expression: '√72 / √8', options: ['√9', '3', '√64', '8'], correct: 1, points: 25 },
-            { id: 26, level: 5, type: 'choice', question: 'Вычислите:', expression: '√48 / √3', options: ['√16', '4', '√45', '16'], correct: 1, points: 25 },
+    if (state.screen === 'start') renderStart(app);
+    else if (state.screen === 'level') renderLevel(app);
+    else if (state.screen === 'final') renderFinal(app);
+}
 
-            // Уровень 6: степень корня
-            { id: 27, level: 6, type: 'choice', question: 'Вычислите:', expression: '(√3)²', options: ['3', '√9', '9', '√6'], correct: 0, points: 20 },
-            { id: 28, level: 6, type: 'choice', question: 'Вычислите:', expression: '(√7)²', options: ['√14', '7', '49', '√49'], correct: 1, points: 20 },
-            { id: 29, level: 6, type: 'choice', question: 'Вычислите:', expression: '(2√5)²', options: ['10', '20', '4√5', '2√25'], correct: 1, points: 20 },
+function renderStart(app) {
+    const header = document.createElement('header');
+    header.className = 'game-header';
+    const h1 = document.createElement('h1');
+    h1.textContent = '🎮 Мастер Корней';
+    const sub = document.createElement('div');
+    sub.className = 'subtitle';
+    sub.textContent = 'Интерактивный тренажёр по арифметическому квадратному корню';
+    header.appendChild(h1);
+    header.appendChild(sub);
+    app.appendChild(header);
 
-            // Уровень 7: комбинированные выражения
-            { id: 30, level: 7, type: 'choice', question: 'Упростите:', expression: '√12 + √27 − √3', options: ['4√3', '3√3', '5√3', '√36'], correct: 0, points: 30 },
-            { id: 31, level: 7, type: 'choice', question: 'Упростите:', expression: '√50 − √18 + √8', options: ['4√2', '3√2', '5√2', '√40'], correct: 0, points: 30 },
-            { id: 32, level: 7, type: 'choice', question: 'Вычислите:', expression: '√(4·9) + √(25·16)', options: ['26', '46', '30', '50'], correct: 0, points: 30 },
+    const content = document.createElement('div');
+    content.className = 'game-content';
 
-            // Уровень 8: БОСС
-            { id: 33, level: 8, type: 'choice', question: '🔥 ФИНАЛЬНЫЙ БОСС! Вычислите:', expression: '(√12 + √27) · √3 − (√50 − √8)²', options: ['1', '2', '3', '4'], correct: 0, points: 50 }
-        ];
+    const start = document.createElement('div');
+    start.className = 'start-screen';
 
-        // ============ STATE ============
-        // Состояние игры — один объект, управляющий всем UI через render()
-        const state = {
-            screen: 'start',          // 'start' | 'game' | 'final'
-            currentQuestion: 0,
-            score: 0,
-            correctAnswers: 0,
-            wrongAnswers: 0,
-            timeLeft: 30,
-            timerId: null,
-            selectedAnswer: null,
-            answered: false,
-            startTime: null
-        };
+    const logo = document.createElement('div');
+    logo.className = 'logo-mark';
+    logo.setAttribute('aria-hidden', 'true');
+    logo.textContent = '√';
+    start.appendChild(logo);
 
-        // ============ RENDER ============
-        function render() {
-            const app = document.getElementById('app');
-            // Очищаем через textContent-безопасный способ — пересоздаём содержимое
-            while (app.firstChild) app.removeChild(app.firstChild);
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Добро пожаловать!';
+    start.appendChild(h2);
 
-            if (state.screen === 'start') renderStartScreen(app);
-            else if (state.screen === 'game') renderGameScreen(app);
-            else if (state.screen === 'final') renderFinalScreen(app);
+    const lead = document.createElement('p');
+    lead.className = 'lead';
+    lead.textContent = 'Пройди 8 миссий и стань Мастером Корней. На каждое задание даётся 3 попытки — после третьей будет показано подробное решение. Решай в своём темпе, без спешки!';
+    start.appendChild(lead);
+
+    const infoGrid = document.createElement('div');
+    infoGrid.className = 'info-grid';
+    [
+        { icon: '📝', label: 'Уровней', value: LEVELS.length },
+        { icon: '🎯', label: 'Попыток', value: '3 на задание' },
+        { icon: '🏆', label: 'Макс. баллов', value: calcMaxScore() }
+    ].forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'info-card';
+        const icon = document.createElement('div');
+        icon.className = 'info-icon';
+        icon.textContent = item.icon;
+        const lbl = document.createElement('div');
+        lbl.className = 'info-label';
+        lbl.textContent = item.label;
+        const val = document.createElement('div');
+        val.className = 'info-value';
+        val.textContent = item.value;
+        card.appendChild(icon);
+        card.appendChild(lbl);
+        card.appendChild(val);
+        infoGrid.appendChild(card);
+    });
+    start.appendChild(infoGrid);
+
+    const missionList = document.createElement('div');
+    missionList.className = 'mission-list';
+    const mh = document.createElement('h3');
+    mh.textContent = '📚 Программа игры:';
+    missionList.appendChild(mh);
+    const ul = document.createElement('ul');
+    [
+        'Базовые корни (таблица квадратов)',
+        'Вынесение множителя из-под корня',
+        'Сложение и вычитание корней',
+        'Умножение корней',
+        'Деление корней',
+        'Возведение корня в степень',
+        'Комбинированные выражения',
+        '🔥 Финальный босс'
+    ].forEach(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        ul.appendChild(li);
+    });
+    missionList.appendChild(ul);
+    start.appendChild(missionList);
+
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-success btn-center';
+    btn.textContent = '🚀 Начать игру';
+    btn.setAttribute('aria-label', 'Начать игру');
+    btn.addEventListener('click', startGame);
+    start.appendChild(btn);
+
+    content.appendChild(start);
+    app.appendChild(content);
+}
+
+function renderLevel(app) {
+    const level = LEVELS[state.currentLevel];
+    const totalQuestions = countTotalQuestions();
+    const solvedCount = Object.values(state.solved).filter(s => s).length;
+    const progress = (solvedCount / totalQuestions) * 100;
+
+    const header = document.createElement('header');
+    header.className = 'game-header';
+    const h1 = document.createElement('h1');
+    h1.textContent = '🎮 Мастер Корней';
+    header.appendChild(h1);
+
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'progress-container';
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress-bar';
+    progressBar.style.width = progress + '%';
+    progressBar.setAttribute('role', 'progressbar');
+    progressBar.setAttribute('aria-valuenow', String(Math.round(progress)));
+    progressBar.setAttribute('aria-valuemin', '0');
+    progressBar.setAttribute('aria-valuemax', '100');
+    progressContainer.appendChild(progressBar);
+    header.appendChild(progressContainer);
+
+    const statsBar = document.createElement('div');
+    statsBar.className = 'stats-bar';
+    const pillMission = document.createElement('span');
+    pillMission.className = 'stat-pill';
+    pillMission.textContent = `Миссия ${state.currentLevel + 1} из ${LEVELS.length}`;
+    const pillScore = document.createElement('span');
+    pillScore.className = 'stat-pill';
+    pillScore.textContent = `★ ${state.score}`;
+    statsBar.appendChild(pillMission);
+    statsBar.appendChild(pillScore);
+    header.appendChild(statsBar);
+
+    app.appendChild(header);
+
+    const content = document.createElement('div');
+    content.className = 'game-content';
+
+    const intro = document.createElement('div');
+    intro.className = 'level-intro';
+    const h2 = document.createElement('h2');
+    h2.textContent = `Миссия ${state.currentLevel + 1}. ${level.title}`;
+    intro.appendChild(h2);
+    const sub = document.createElement('div');
+    sub.className = 'level-subtitle';
+    sub.textContent = level.subtitle;
+    intro.appendChild(sub);
+
+    const example = document.createElement('div');
+    example.className = 'example-card';
+    const exLabel = document.createElement('div');
+    exLabel.className = 'example-label';
+    exLabel.textContent = '💡 Пример решения';
+    example.appendChild(exLabel);
+
+    const exExpr = document.createElement('div');
+    exExpr.className = 'example-expr';
+    exExpr.innerHTML = level.example.expr.replace(/√/g, '<span class="sqrt-sym">√</span>') + ' = ' + formatAnswer(level.example);
+    example.appendChild(exExpr);
+
+    const exSteps = document.createElement('div');
+    exSteps.className = 'example-steps';
+    level.example.steps.forEach((step, i) => {
+        const s = document.createElement('div');
+        s.className = 'step';
+        const num = document.createElement('span');
+        num.className = 'step-num';
+        num.textContent = (i + 1) + '.';
+        s.appendChild(num);
+        s.appendChild(document.createTextNode(step));
+        exSteps.appendChild(s);
+    });
+    example.appendChild(exSteps);
+    intro.appendChild(example);
+
+    const table = document.createElement('div');
+    table.className = 'squares-table-classical';
+    const tLabel = document.createElement('div');
+    tLabel.className = 'table-label';
+    tLabel.textContent = '📊 Таблица квадратов (шпаргалка)';
+    table.appendChild(tLabel);
+
+    const tableWrapper = document.createElement('div');
+    tableWrapper.className = 'table-wrapper';
+
+    const leftCaption = document.createElement('div');
+    leftCaption.className = 'table-caption-left';
+    leftCaption.textContent = 'Десятки';
+    tableWrapper.appendChild(leftCaption);
+
+    const tableContent = document.createElement('div');
+    tableContent.className = 'table-content';
+
+    const topCaption = document.createElement('div');
+    topCaption.className = 'table-caption-top';
+    topCaption.textContent = 'Единицы';
+    tableContent.appendChild(topCaption);
+
+    const tbl = document.createElement('table');
+    tbl.setAttribute('aria-label', 'Таблица квадратов чисел от 10 до 99');
+
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    const cornerCell = document.createElement('th');
+    cornerCell.className = 'corner-cell';
+    cornerCell.textContent = '';
+    headerRow.appendChild(cornerCell);
+
+    for (let unit = 0; unit <= 9; unit++) {
+        const th = document.createElement('th');
+        th.textContent = unit;
+        headerRow.appendChild(th);
+    }
+    thead.appendChild(headerRow);
+    tbl.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (let ten = 1; ten <= 9; ten++) {
+        const row = document.createElement('tr');
+        const rowHeader = document.createElement('th');
+        rowHeader.className = 'row-header';
+        rowHeader.textContent = ten;
+        row.appendChild(rowHeader);
+
+        for (let unit = 0; unit <= 9; unit++) {
+            const num = ten * 10 + unit;
+            const square = num * num;
+            const td = document.createElement('td');
+            td.textContent = square;
+            td.setAttribute('title', `${num}² = ${square}`);
+            row.appendChild(td);
         }
+        tbody.appendChild(row);
+    }
+    tbl.appendChild(tbody);
 
-        // Экран «Старт»
-        function renderStartScreen(app) {
-            const header = document.createElement('header');
-            header.className = 'game-header';
+    tableContent.appendChild(tbl);
+    tableWrapper.appendChild(tableContent);
+    table.appendChild(tableWrapper);
+    intro.appendChild(table);
 
-            const h1 = document.createElement('h1');
-            h1.textContent = '🎮 Мастер Корней';
-            const sub = document.createElement('div');
-            sub.className = 'subtitle';
-            sub.textContent = 'Интерактивный тренажёр по арифметическому квадратному корню';
-            header.appendChild(h1);
-            header.appendChild(sub);
-            app.appendChild(header);
+    content.appendChild(intro);
 
-            const content = document.createElement('div');
-            content.className = 'game-content';
+    const qList = document.createElement('div');
+    qList.className = 'questions-list';
+    level.questions.forEach((q, idx) => {
+        qList.appendChild(renderQuestion(q, idx + 1));
+    });
+    content.appendChild(qList);
 
-            const start = document.createElement('div');
-            start.className = 'start-screen';
+    const levelSolved = level.questions.filter(q => state.solved[q.id]).length;
+    const levelTotal = level.questions.length;
+    const progText = document.createElement('div');
+    progText.className = 'level-progress';
+    progText.textContent = `Решено: ${levelSolved} из ${levelTotal}`;
+    content.appendChild(progText);
 
-            const logo = document.createElement('div');
-            logo.className = 'logo-mark';
-            logo.setAttribute('aria-hidden', 'true');
-            logo.textContent = '√';
-            start.appendChild(logo);
-
-            const h2 = document.createElement('h2');
-            h2.textContent = 'Добро пожаловать в игру!';
-            start.appendChild(h2);
-
-            const lead = document.createElement('p');
-            lead.className = 'lead';
-            lead.textContent = 'Пройди все миссии и стань Мастером Корней! Тебя ждут задания на вычисление, упрощение и преобразование выражений с корнями.';
-            start.appendChild(lead);
-
-            const infoGrid = document.createElement('div');
-            infoGrid.className = 'info-grid';
-            const infoItems = [
-                { icon: '📝', label: 'Заданий', value: QUESTIONS.length },
-                { icon: '⏱️', label: 'На ответ', value: '30 сек' },
-                { icon: '🏆', label: 'Макс. баллов', value: getMaxScore() }
-            ];
-            infoItems.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'info-card';
-                const icon = document.createElement('div');
-                icon.className = 'info-icon';
-                icon.textContent = item.icon;
-                const lbl = document.createElement('div');
-                lbl.className = 'info-label';
-                lbl.textContent = item.label;
-                const val = document.createElement('div');
-                val.className = 'info-value';
-                val.textContent = item.value;
-                card.appendChild(icon);
-                card.appendChild(lbl);
-                card.appendChild(val);
-                infoGrid.appendChild(card);
-            });
-            start.appendChild(infoGrid);
-
-            const missionList = document.createElement('div');
-            missionList.className = 'mission-list';
-            const mh = document.createElement('h3');
-            mh.textContent = '📚 Тебя ждут миссии:';
-            missionList.appendChild(mh);
-            const ul = document.createElement('ul');
-            [
-                'Базовые корни из таблицы квадратов',
-                'Вынесение множителя из-под корня',
-                'Сложение и вычитание подобных корней',
-                'Умножение и деление корней',
-                'Возведение корня в степень',
-                'Комбинированные выражения',
-                'Финальный босс!'
-            ].forEach(text => {
-                const li = document.createElement('li');
-                li.textContent = text;
-                ul.appendChild(li);
-            });
-            missionList.appendChild(ul);
-            start.appendChild(missionList);
-
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-success btn-center';
-            btn.textContent = '🚀 Начать игру';
-            btn.setAttribute('aria-label', 'Начать игру');
-            btn.addEventListener('click', startGame);
-            start.appendChild(btn);
-
-            content.appendChild(start);
-            app.appendChild(content);
+    const allSolved = level.questions.every(q => state.solved[q.id]);
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'next-level-btn';
+    nextBtn.disabled = !allSolved;
+    nextBtn.textContent = state.currentLevel < LEVELS.length - 1 ? 'Следующая миссия →' : ' Показать результат';
+    nextBtn.addEventListener('click', () => {
+        if (state.currentLevel < LEVELS.length - 1) {
+            state.currentLevel++;
+        } else {
+            state.screen = 'final';
         }
-
-        // Игровой экран — один вопрос
-        function renderGameScreen(app) {
-            const question = QUESTIONS[state.currentQuestion];
-            const progress = (state.currentQuestion / QUESTIONS.length) * 100;
-
-            const header = document.createElement('header');
-            header.className = 'game-header';
-
-            const h1 = document.createElement('h1');
-            h1.textContent = '🎮 Мастер Корней';
-            header.appendChild(h1);
-
-            const progressContainer = document.createElement('div');
-            progressContainer.className = 'progress-container';
-            const progressBar = document.createElement('div');
-            progressBar.className = 'progress-bar';
-            progressBar.style.width = progress + '%';
-            progressBar.setAttribute('role', 'progressbar');
-            progressBar.setAttribute('aria-valuenow', String(Math.round(progress)));
-            progressBar.setAttribute('aria-valuemin', '0');
-            progressBar.setAttribute('aria-valuemax', '100');
-            progressContainer.appendChild(progressBar);
-            header.appendChild(progressContainer);
-
-            const statsBar = document.createElement('div');
-            statsBar.className = 'stats-bar';
-            const pillMission = document.createElement('span');
-            pillMission.className = 'stat-pill';
-            pillMission.textContent = `Миссия ${state.currentQuestion + 1} из ${QUESTIONS.length}`;
-            const pillScore = document.createElement('span');
-            pillScore.className = 'stat-pill';
-            pillScore.textContent = `★ ${state.score}`;
-            statsBar.appendChild(pillMission);
-            statsBar.appendChild(pillScore);
-            header.appendChild(statsBar);
-
-            app.appendChild(header);
-
-            const content = document.createElement('div');
-            content.className = 'game-content';
-
-            const card = document.createElement('div');
-            card.className = 'question-card';
-
-            // Шапка вопроса
-            const qHeader = document.createElement('div');
-            qHeader.className = 'question-header';
-
-            const levelBadge = document.createElement('span');
-            levelBadge.className = 'level-badge';
-            levelBadge.textContent = question.level === 8 ? '🔥 БОСС' : `Уровень ${question.level}`;
-            qHeader.appendChild(levelBadge);
-
-            const pointsBadge = document.createElement('span');
-            pointsBadge.className = 'points-badge';
-            pointsBadge.textContent = `+${question.points}`;
-            qHeader.appendChild(pointsBadge);
-
-            const timer = document.createElement('div');
-            timer.className = 'timer' + (state.timeLeft <= 5 && !state.answered ? ' low' : '');
-            timer.setAttribute('aria-live', 'polite');
-            const timerIcon = document.createElement('span');
-            timerIcon.setAttribute('aria-hidden', 'true');
-            timerIcon.textContent = '⏱️';
-            const timerText = document.createElement('span');
-            timerText.id = 'timer-display';
-            timerText.textContent = state.timeLeft + 'с';
-            timer.appendChild(timerIcon);
-            timer.appendChild(timerText);
-            qHeader.appendChild(timer);
-
-            card.appendChild(qHeader);
-
-            // Текст вопроса
-            const qText = document.createElement('div');
-            qText.className = 'question-text';
-            qText.textContent = question.question;
-            card.appendChild(qText);
-
-            // Математическое выражение
-            const mathExpr = document.createElement('div');
-            mathExpr.className = 'math-expression';
-            mathExpr.setAttribute('aria-label', 'Математическое выражение');
-            // Подсветка знака корня
-            mathExpr.innerHTML = question.expression.replace(/√/g, '<span class="sqrt-symbol">√</span>');
-            card.appendChild(mathExpr);
-
-            // Варианты ответов
-            if (question.type === 'choice') {
-                const optionsGrid = document.createElement('div');
-                optionsGrid.className = 'options-grid';
-                optionsGrid.setAttribute('role', 'group');
-                optionsGrid.setAttribute('aria-label', 'Варианты ответов');
-
-                question.options.forEach((option, index) => {
-                    const btn = document.createElement('button');
-                    btn.className = 'option-btn';
-                    btn.textContent = option;
-                    btn.setAttribute('aria-label', `Вариант ${index + 1}: ${option}`);
-
-                    if (state.answered) {
-                        if (index === question.correct) btn.classList.add('correct');
-                        else if (index === state.selectedAnswer && index !== question.correct) btn.classList.add('incorrect');
-                        btn.disabled = true;
-                    } else {
-                        btn.addEventListener('click', () => selectAnswer(index));
-                    }
-
-                    optionsGrid.appendChild(btn);
-                });
-
-                card.appendChild(optionsGrid);
-            }
-
-            // Обратная связь
-            if (state.answered) {
-                const feedback = document.createElement('div');
-                const isCorrect = state.selectedAnswer === question.correct;
-                feedback.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
-                if (state.selectedAnswer === null) {
-                    feedback.textContent = `⏰ Время вышло! Правильный ответ: ${question.options[question.correct]}`;
-                } else if (isCorrect) {
-                    feedback.textContent = `✅ Отлично! +${question.points} баллов`;
-                } else {
-                    feedback.textContent = `❌ Неверно. Правильный ответ: ${question.options[question.correct]}`;
-                }
-                card.appendChild(feedback);
-
-                const nextBtn = document.createElement('button');
-                nextBtn.className = 'btn btn-center';
-                nextBtn.textContent = state.currentQuestion < QUESTIONS.length - 1 ? 'Следующая миссия →' : 'Показать результат →';
-                nextBtn.setAttribute('aria-label', 'Перейти дальше');
-                nextBtn.addEventListener('click', nextQuestion);
-                card.appendChild(nextBtn);
-            }
-
-            content.appendChild(card);
-            app.appendChild(content);
-        }
-
-        // Финальный экран
-        function renderFinalScreen(app) {
-            const totalTime = Math.round((Date.now() - state.startTime) / 1000);
-            const minutes = Math.floor(totalTime / 60);
-            const seconds = totalTime % 60;
-            const percentage = Math.round((state.correctAnswers / QUESTIONS.length) * 100);
-
-            let medal = '🥉';
-            let message = 'Хорошее начало! Попробуй ещё раз — и покорится больше.';
-            if (percentage >= 90) {
-                medal = '🏆';
-                message = 'Невероятно! Ты настоящий Мастер Корней!';
-            } else if (percentage >= 70) {
-                medal = '🥇';
-                message = 'Отлично! Превосходный результат!';
-            } else if (percentage >= 50) {
-                medal = '🥈';
-                message = 'Хорошо! Но есть куда расти.';
-            }
-
-            const header = document.createElement('header');
-            header.className = 'game-header';
-            const h1 = document.createElement('h1');
-            h1.textContent = '🎮 Мастер Корней';
-            header.appendChild(h1);
-            const sub = document.createElement('div');
-            sub.className = 'subtitle';
-            sub.textContent = 'Игра завершена';
-            header.appendChild(sub);
-            app.appendChild(header);
-
-            const content = document.createElement('div');
-            content.className = 'game-content';
-
-            const final = document.createElement('div');
-            final.className = 'final-screen';
-
-            const medalEl = document.createElement('div');
-            medalEl.className = 'medal';
-            medalEl.setAttribute('aria-hidden', 'true');
-            medalEl.textContent = medal;
-            final.appendChild(medalEl);
-
-            const h2 = document.createElement('h2');
-            h2.textContent = 'Миссия выполнена!';
-            final.appendChild(h2);
-
-            const msg = document.createElement('p');
-            msg.className = 'final-message';
-            msg.textContent = message;
-            final.appendChild(msg);
-
-            const scoreDisplay = document.createElement('div');
-            scoreDisplay.className = 'score-display';
-            const scoreLabel = document.createElement('div');
-            scoreLabel.className = 'score-label';
-            scoreLabel.textContent = 'Твой результат';
-            const scoreNumber = document.createElement('div');
-            scoreNumber.className = 'score-number';
-            scoreNumber.textContent = `${state.score} / ${getMaxScore()}`;
-            const scorePercent = document.createElement('div');
-            scorePercent.className = 'score-percent';
-            scorePercent.textContent = `${percentage}% правильных ответов`;
-            scoreDisplay.appendChild(scoreLabel);
-            scoreDisplay.appendChild(scoreNumber);
-            scoreDisplay.appendChild(scorePercent);
-            final.appendChild(scoreDisplay);
-
-            const statsGrid = document.createElement('div');
-            statsGrid.className = 'stats-grid';
-            const stats = [
-                { value: state.correctAnswers, label: 'Верно' },
-                { value: state.wrongAnswers, label: 'Ошибок' },
-                { value: `${minutes}:${String(seconds).padStart(2, '0')}`, label: 'Время' }
-            ];
-            stats.forEach(s => {
-                const card = document.createElement('div');
-                card.className = 'stat-card';
-                const val = document.createElement('div');
-                val.className = 'stat-value';
-                val.textContent = s.value;
-                const lbl = document.createElement('div');
-                lbl.className = 'stat-label';
-                lbl.textContent = s.label;
-                card.appendChild(val);
-                card.appendChild(lbl);
-                statsGrid.appendChild(card);
-            });
-            final.appendChild(statsGrid);
-
-            const restartBtn = document.createElement('button');
-            restartBtn.className = 'btn btn-success btn-center';
-            restartBtn.textContent = '🔄 Играть снова';
-            restartBtn.setAttribute('aria-label', 'Начать игру заново');
-            restartBtn.addEventListener('click', restartGame);
-            final.appendChild(restartBtn);
-
-            content.appendChild(final);
-            app.appendChild(content);
-        }
-
-        // ============ HELPERS ============
-        function getMaxScore() {
-            return QUESTIONS.reduce((sum, q) => sum + q.points, 0);
-        }
-
-        // ============ HANDLERS ============
-        function startGame() {
-            state.screen = 'game';
-            state.currentQuestion = 0;
-            state.score = 0;
-            state.correctAnswers = 0;
-            state.wrongAnswers = 0;
-            state.startTime = Date.now();
-            startTimer();
-            render();
-        }
-
-        function startTimer() {
-            state.timeLeft = 30;
-            clearInterval(state.timerId);
-            state.timerId = setInterval(() => {
-                state.timeLeft--;
-                const timerDisplay = document.getElementById('timer-display');
-                if (timerDisplay) timerDisplay.textContent = state.timeLeft + 'с';
-
-                // Подсветка таймера при малом времени
-                const timerEl = timerDisplay && timerDisplay.parentElement;
-                if (timerEl) {
-                    if (state.timeLeft <= 5) timerEl.classList.add('low');
-                    else timerEl.classList.remove('low');
-                }
-
-                if (state.timeLeft <= 0) {
-                    clearInterval(state.timerId);
-                    if (!state.answered) {
-                        state.wrongAnswers++;
-                        state.answered = true;
-                        state.selectedAnswer = null;
-                        render();
-                    }
-                }
-            }, 1000);
-        }
-
-        function selectAnswer(index) {
-            if (state.answered) return;
-            state.selectedAnswer = index;
-            state.answered = true;
-            clearInterval(state.timerId);
-
-            const question = QUESTIONS[state.currentQuestion];
-            if (index === question.correct) {
-                state.score += question.points;
-                state.correctAnswers++;
-            } else {
-                state.wrongAnswers++;
-            }
-            render();
-        }
-
-        function nextQuestion() {
-            state.currentQuestion++;
-            state.selectedAnswer = null;
-            state.answered = false;
-
-            if (state.currentQuestion >= QUESTIONS.length) {
-                state.screen = 'final';
-            } else {
-                startTimer();
-            }
-            render();
-        }
-
-        function restartGame() {
-            clearInterval(state.timerId);
-            state.screen = 'start';
-            state.currentQuestion = 0;
-            state.score = 0;
-            state.correctAnswers = 0;
-            state.wrongAnswers = 0;
-            state.selectedAnswer = null;
-            state.answered = false;
-            render();
-        }
-
-        // ============ INIT ============
         render();
-    </script>
+    });
+    content.appendChild(nextBtn);
+
+    app.appendChild(content);
+}
+
+function renderQuestion(q, num) {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    if (state.solved[q.id] === 'correct') card.classList.add('solved-correct');
+    if (state.solved[q.id] === 'hint') card.classList.add('solved-hint');
+
+    const top = document.createElement('div');
+    top.className = 'q-card-top';
+    const numEl = document.createElement('div');
+    numEl.className = 'q-number';
+    numEl.textContent = `Задание ${num}`;
+    top.appendChild(numEl);
+
+    const statusEl = document.createElement('div');
+    statusEl.className = 'q-status';
+    if (state.solved[q.id] === 'correct') {
+        statusEl.classList.add('correct');
+        statusEl.textContent = '✓ Верно';
+    } else if (state.solved[q.id] === 'hint') {
+        statusEl.classList.add('hint');
+        statusEl.textContent = '⚠ С подсказкой';
+    } else {
+        statusEl.classList.add('pending');
+        statusEl.textContent = '○ В процессе';
+    }
+    top.appendChild(statusEl);
+    card.appendChild(top);
+
+    const expr = document.createElement('div');
+    expr.className = 'q-expr';
+    expr.innerHTML = q.expr.replace(/√/g, '<span class="sqrt-sym">√</span>');
+    card.appendChild(expr);
+
+    if (!state.solved[q.id]) {
+        const attempts = state.attempts[q.id] || 0;
+        const answerArea = document.createElement('div');
+        answerArea.className = 'answer-area';
+
+        if (q.answerType === 'number') {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.inputMode = 'numeric';
+            input.className = 'answer-input';
+            input.setAttribute('aria-label', 'Введите числовой ответ');
+            input.setAttribute('data-qid', q.id);
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9\-]/g, '');
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') checkAnswer(q.id);
+            });
+            answerArea.appendChild(input);
+        } else {
+            const wrap = document.createElement('div');
+            wrap.className = 'root-input-wrap';
+
+            const coeffInput = document.createElement('input');
+            coeffInput.type = 'text';
+            coeffInput.inputMode = 'numeric';
+            coeffInput.className = 'answer-input coeff-input';
+            coeffInput.setAttribute('aria-label', 'Коэффициент перед корнем');
+            coeffInput.setAttribute('data-qid', q.id);
+            coeffInput.setAttribute('data-field', 'coeff');
+            coeffInput.placeholder = 'a';
+            coeffInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+
+            const rootSym = document.createElement('span');
+            rootSym.className = 'root-symbol';
+            rootSym.setAttribute('aria-hidden', 'true');
+
+            const radInput = document.createElement('input');
+            radInput.type = 'text';
+            radInput.inputMode = 'numeric';
+            radInput.className = 'answer-input radicand-input';
+            radInput.setAttribute('aria-label', 'Число под корнем');
+            radInput.setAttribute('data-qid', q.id);
+            radInput.setAttribute('data-field', 'radicand');
+            radInput.placeholder = 'b';
+            radInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+            radInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') checkAnswer(q.id);
+            });
+
+            wrap.appendChild(coeffInput);
+            wrap.appendChild(rootSym);
+            wrap.appendChild(radInput);
+            answerArea.appendChild(wrap);
+        }
+
+        card.appendChild(answerArea);
+
+        const attemptsInfo = document.createElement('div');
+        attemptsInfo.className = 'attempts-info';
+        if (attempts === 0) {
+            attemptsInfo.textContent = 'Введи ответ и нажми «Проверить»';
+        } else if (attempts === 1) {
+            attemptsInfo.textContent = 'Неверно. Осталось попыток: 2';
+            attemptsInfo.classList.add('warn');
+        } else if (attempts === 2) {
+            attemptsInfo.textContent = 'Неверно. Последняя попытка!';
+            attemptsInfo.classList.add('danger');
+        }
+        card.appendChild(attemptsInfo);
+
+        const checkBtn = document.createElement('button');
+        checkBtn.className = 'check-btn';
+        checkBtn.textContent = 'Проверить';
+        checkBtn.setAttribute('data-qid', q.id);
+        checkBtn.addEventListener('click', () => checkAnswer(q.id));
+        card.appendChild(checkBtn);
+    } else {
+        if (state.solved[q.id] === 'hint') {
+            const expl = document.createElement('div');
+            expl.className = 'explanation-box';
+            const title = document.createElement('div');
+            title.className = 'expl-title';
+            title.textContent = '📘 Разбор задания:';
+            expl.appendChild(title);
+            const text = document.createElement('div');
+            text.textContent = q.explanation;
+            expl.appendChild(text);
+            card.appendChild(expl);
+        } else {
+            const expl = document.createElement('div');
+            expl.className = 'explanation-box';
+            expl.style.background = 'linear-gradient(135deg, #d1fae5, #a7f3d0)';
+            expl.style.borderColor = '#10b981';
+            const title = document.createElement('div');
+            title.className = 'expl-title';
+            title.style.color = '#065f46';
+            title.textContent = '✓ Отлично!';
+            expl.appendChild(title);
+            const text = document.createElement('div');
+            text.textContent = q.explanation;
+            expl.appendChild(text);
+            card.appendChild(expl);
+        }
+    }
+
+    return card;
+}
+
+function formatAnswer(example) {
+    if (example.answer !== undefined) return String(example.answer);
+    if (example.answerRoot) {
+        const c = example.answerRoot.coeff;
+        const r = example.answerRoot.radicand;
+        if (c === 1) return '√' + r;
+        return c + '√' + r;
+    }
+    return '';
+}
+
+function renderFinal(app) {
+    const totalTime = Math.round((Date.now() - state.startTime) / 1000);
+    const minutes = Math.floor(totalTime / 60);
+    const seconds = totalTime % 60;
+    const totalQ = countTotalQuestions();
+    const correctCount = Object.values(state.solved).filter(s => s === 'correct').length;
+    const percentage = Math.round((correctCount / totalQ) * 100);
+
+    let medal = '';
+    let message = 'Хорошее начало! Попробуй ещё раз.';
+    if (percentage >= 90) { medal = '🏆'; message = 'Невероятно! Ты настоящий Мастер Корней!'; }
+    else if (percentage >= 70) { medal = '🥇'; message = 'Отлично! Превосходный результат!'; }
+    else if (percentage >= 50) { medal = '🥈'; message = 'Хорошо! Но есть куда расти.'; }
+
+    const header = document.createElement('header');
+    header.className = 'game-header';
+    const h1 = document.createElement('h1');
+    h1.textContent = '🎮 Мастер Корней';
+    header.appendChild(h1);
+    const sub = document.createElement('div');
+    sub.className = 'subtitle';
+    sub.textContent = 'Игра завершена';
+    header.appendChild(sub);
+    app.appendChild(header);
+
+    const content = document.createElement('div');
+    content.className = 'game-content';
+
+    const final = document.createElement('div');
+    final.className = 'final-screen';
+
+    const medalEl = document.createElement('div');
+    medalEl.className = 'medal';
+    medalEl.setAttribute('aria-hidden', 'true');
+    medalEl.textContent = medal;
+    final.appendChild(medalEl);
+
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Миссия выполнена!';
+    final.appendChild(h2);
+
+    const msg = document.createElement('p');
+    msg.className = 'final-message';
+    msg.textContent = message;
+    final.appendChild(msg);
+
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'score-display';
+    const scoreLabel = document.createElement('div');
+    scoreLabel.className = 'score-label';
+    scoreLabel.textContent = 'Твой результат';
+    const scoreNumber = document.createElement('div');
+    scoreNumber.className = 'score-number';
+    scoreNumber.textContent = `${state.score} / ${state.maxScore}`;
+    const scorePercent = document.createElement('div');
+    scorePercent.className = 'score-percent';
+    scorePercent.textContent = `${percentage}% решено верно с первой попытки`;
+    scoreDisplay.appendChild(scoreLabel);
+    scoreDisplay.appendChild(scoreNumber);
+    scoreDisplay.appendChild(scorePercent);
+    final.appendChild(scoreDisplay);
+
+    const statsGrid = document.createElement('div');
+    statsGrid.className = 'stats-grid';
+    const hintCount = Object.values(state.solved).filter(s => s === 'hint').length;
+    [
+        { value: correctCount, label: 'Верно' },
+        { value: hintCount, label: 'С подсказкой' },
+        { value: `${minutes}:${String(seconds).padStart(2, '0')}`, label: 'Время' }
+    ].forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        const val = document.createElement('div');
+        val.className = 'stat-value';
+        val.textContent = s.value;
+        const lbl = document.createElement('div');
+        lbl.className = 'stat-label';
+        lbl.textContent = s.label;
+        card.appendChild(val);
+        card.appendChild(lbl);
+        statsGrid.appendChild(card);
+    });
+    final.appendChild(statsGrid);
+
+    const resultsByType = document.createElement('div');
+    resultsByType.className = 'results-by-type';
+    const rtTitle = document.createElement('h3');
+    rtTitle.textContent = '📊 Результаты по типам заданий';
+    resultsByType.appendChild(rtTitle);
+
+    LEVELS.forEach(level => {
+        const row = document.createElement('div');
+        row.className = 'type-row' + (level.isBoss ? ' boss-row' : '');
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'type-name';
+        nameEl.textContent = level.title;
+
+        const correctInLevel = level.questions.filter(q => state.solved[q.id] === 'correct').length;
+        const totalInLevel = level.questions.length;
+
+        const scoreEl = document.createElement('div');
+        scoreEl.className = 'type-score';
+        scoreEl.textContent = `${correctInLevel} / ${totalInLevel}`;
+
+        const barWrap = document.createElement('div');
+        barWrap.className = 'type-bar-wrap';
+        const bar = document.createElement('div');
+        bar.className = 'type-bar';
+        const pct = totalInLevel > 0 ? (correctInLevel / totalInLevel) * 100 : 0;
+        bar.style.width = pct + '%';
+        if (pct === 100) bar.classList.add('perfect');
+        else if (pct >= 66) bar.classList.add('good');
+        else if (pct >= 33) bar.classList.add('ok');
+        else bar.classList.add('bad');
+        barWrap.appendChild(bar);
+
+        row.appendChild(nameEl);
+        row.appendChild(barWrap);
+        row.appendChild(scoreEl);
+        resultsByType.appendChild(row);
+    });
+
+    final.appendChild(resultsByType);
+
+    const restartBtn = document.createElement('button');
+    restartBtn.className = 'btn btn-success btn-center';
+    restartBtn.textContent = '🔄 Играть снова';
+    restartBtn.setAttribute('aria-label', 'Начать игру заново');
+    restartBtn.addEventListener('click', restartGame);
+    final.appendChild(restartBtn);
+
+    content.appendChild(final);
+    app.appendChild(content);
+}
+
+// ============ HELPERS ============
+function countTotalQuestions() {
+    return LEVELS.reduce((sum, lv) => sum + lv.questions.length, 0);
+}
+
+function findQuestion(qid) {
+    for (const lv of LEVELS) {
+        const q = lv.questions.find(x => x.id === qid);
+        if (q) return q;
+    }
+    return null;
+}
+
+// ============ HANDLERS ============
+function startGame() {
+    state.screen = 'level';
+    state.currentLevel = 0;
+    state.score = 0;
+    state.maxScore = calcMaxScore();
+    state.attempts = {};
+    state.solved = {};
+    state.startTime = Date.now();
+    render();
+}
+
+function checkAnswer(qid) {
+    if (state.solved[qid]) return;
+
+    const q = findQuestion(qid);
+    if (!q) return;
+
+    const attempts = state.attempts[qid] || 0;
+    let userAnswer;
+
+    if (q.answerType === 'number') {
+        const input = document.querySelector(`input[data-qid="${qid}"]`);
+        if (!input) return;
+        const val = input.value.trim();
+        if (val === '') {
+            input.classList.add('wrong');
+            setTimeout(() => input.classList.remove('wrong'), 400);
+            return;
+        }
+        userAnswer = parseInt(val, 10);
+    } else {
+        const coeffInput = document.querySelector(`input[data-qid="${qid}"][data-field="coeff"]`);
+        const radInput = document.querySelector(`input[data-qid="${qid}"][data-field="radicand"]`);
+        if (!coeffInput || !radInput) return;
+        const radVal = radInput.value.trim();
+        if (radVal === '') {
+            radInput.classList.add('wrong');
+            setTimeout(() => radInput.classList.remove('wrong'), 400);
+            return;
+        }
+        const coeffVal = coeffInput.value.trim();
+        userAnswer = {
+            coeff: coeffVal === '' ? 1 : parseInt(coeffVal, 10),
+            radicand: parseInt(radVal, 10)
+        };
+    }
+
+    const isCorrect = checkCorrect(q, userAnswer);
+
+    if (isCorrect) {
+        state.solved[qid] = 'correct';
+        if (attempts === 0) state.score += 10;
+        else if (attempts === 1) state.score += 5;
+        render();
+    } else {
+        state.attempts[qid] = attempts + 1;
+        if (q.answerType === 'number') {
+            const input = document.querySelector(`input[data-qid="${qid}"]`);
+            if (input) {
+                input.classList.add('wrong');
+                setTimeout(() => input.classList.remove('wrong'), 400);
+            }
+        } else {
+            const coeffInput = document.querySelector(`input[data-qid="${qid}"][data-field="coeff"]`);
+            const radInput = document.querySelector(`input[data-qid="${qid}"][data-field="radicand"]`);
+            if (coeffInput) { coeffInput.classList.add('wrong'); setTimeout(() => coeffInput.classList.remove('wrong'), 400); }
+            if (radInput) { radInput.classList.add('wrong'); setTimeout(() => radInput.classList.remove('wrong'), 400); }
+        }
+
+        if (attempts + 1 >= 3) {
+            state.solved[qid] = 'hint';
+            setTimeout(() => render(), 500);
+        } else {
+            render();
+        }
+    }
+}
+
+function checkCorrect(q, userAnswer) {
+    if (q.answerType === 'number') {
+        return userAnswer === q.answer;
+    } else {
+        return userAnswer.coeff === q.answer.coeff && userAnswer.radicand === q.answer.radicand;
+    }
+}
+
+function restartGame() {
+    state.screen = 'start';
+    state.currentLevel = 0;
+    state.score = 0;
+    state.attempts = {};
+    state.solved = {};
+    render();
+}
+
+// ============ INIT ============
+render();
+</script>
 </body>
 </html>
